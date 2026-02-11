@@ -114,9 +114,16 @@ export async function runServer(options: RunServerOptions): Promise<void> {
     `🌐 Usage Viewer: https://ericc-ch.github.io/copilot-api?endpoint=${serverUrl}/usage`,
   )
 
+  // Bun default idleTimeout is 10s, which can cause "terminated" errors
+  // for large streaming responses (e.g., big tool call content)
+  const idleTimeout = Number(process.env.IDLE_TIMEOUT) || 120
+
   serve({
     fetch: server.fetch as ServerHandler,
     port: options.port,
+    bun: {
+      idleTimeout,
+    },
   })
 }
 
